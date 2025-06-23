@@ -1,0 +1,31 @@
+export async function fetchAvailablePlaces() {
+  const response = await fetch("http://localhost:3000/places");
+  const resData = await response.json();
+
+  // ok: true - 200, 300 status code - false: 400, 500 status code
+  if (!response.ok) {
+    throw new Error();
+  }
+
+  return resData.places;
+}
+
+
+export async function updateUserPlaces(places) {
+   const response = await fetch('http://localhost:3000/user-places', {
+      method: 'PUT',
+      body: JSON.stringify({ places }), // When the Props has the same name as the key, we can use shorthand syntax
+      // body: JSON.stringify({ places: places }),
+      headers: {
+         'Content-Type': 'application/json',
+      }
+   });
+
+   const resData = await response.json();
+
+   if (!response.ok) {
+      throw new Error('Failed to update user data.');
+   }
+
+   return resData.message;
+}
