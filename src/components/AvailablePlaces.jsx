@@ -1,47 +1,28 @@
-import { useState, useEffect } from 'react';
+import Places from './Places.jsx';
 import ErrorPage from './Error.jsx';
 import { sortPlacesByDistance } from '../loc.js';
 import { fetchAvailablePlaces } from '../http.js';
+import { useFetch } from '../hooks/useFetch.js';
 
-import Places from './Places.jsx';
+async function fetchSortedPlaces() {
+   const places = await fetchAvailablePlaces();
+
+   return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition((position) => {
+         const sortedPlaces = sortPlacesByDistance(places, position.coords.latitude, position.coords.longitude);
+
+         resolve(sortedPlaces);
+      });
+   });
+}
+
 
 export default function AvailablePlaces({ onSelectPlace }) {
-   // When Fetching data we usually use these 3 states
-   // 1. isFetching: to show a loading spinner
-   // 2. availablePlaces: to store the fetched data
-   // 3. error: to store any error that occurs during fetching
-   const [isFetching, setIsFetching] = useState(false);
-   const [availablePlaces, setAvaiablePlaces] = useState([]);
-   const [error, setError] = useState();
-
-   useEffect(() => {
-      async function fetchPlaces() {
-         setIsFetching(true);
-
-         try {
-            const places = await fetchAvailablePlaces();
-
-            navigator.geolocation.getCurrentPosition((position) => {
-               const sortedPlaces = sortPlacesByDistance(places, position.coords.latitude, position.coords.longitude);
-               setAvaiablePlaces(sortedPlaces);
-               setIsFetching(false);
-            });
-
-            
-         } catch (error) { 
-            setError(
-               {
-                  message: error.message || 'Could not fetch places, please try again later.'
-               }
-            );
-            setIsFetching(false);
-         }
-
-         
-      };
-
-      fetchPlaces();
-   }, []);
+   const {
+      isFetching,
+      error,
+      fetchedData: availablePlaces,
+   } = useFetch(fetchSortedPlaces, []);
 
    if (error) {
       return (
