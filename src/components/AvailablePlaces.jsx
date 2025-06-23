@@ -5,8 +5,6 @@ import { fetchAvailablePlaces } from '../http.js';
 
 import Places from './Places.jsx';
 
-const places = localStorage.getItem('places');
-
 export default function AvailablePlaces({ onSelectPlace }) {
    // When Fetching data we usually use these 3 states
    // 1. isFetching: to show a loading spinner
